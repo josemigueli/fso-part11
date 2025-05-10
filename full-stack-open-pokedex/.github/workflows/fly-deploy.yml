@@ -24,3 +24,21 @@ jobs:
       - run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Pokedex New Version Deployed
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d '{
+            "content": "**✅ Deploy Succeeded!**\n🔢 Version: '${{ github.sha }}'\n🌐 https://full-stack-open-pokedex-dark-silence-9764.fly.dev/"
+          }' \
+          ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Pokedex Deployment Failed
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d '{
+           "content": "**❌ Deploy Failed!**\n🔍 Logs: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'"
+          }' \
+          ${{ secrets.DISCORD_WEBHOOK }}
